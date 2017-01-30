@@ -9,7 +9,7 @@ lc_file='dbf1.txt'
 #lc_file='C8_3386_left.txt'
 #lc_file='C8_3386_right.txt'
 #Ephemeris planet b
-planet = 'b'
+planet = 'c'
 if ( planet == 'b' ):
   lc_file='dbf1-b.txt'
   P = 0.959628
@@ -36,32 +36,7 @@ time, flux = np.loadtxt(lc_file, \
 ftl = T0 - td / 2.0
 ftr = T0 + td / 2.0
 
-#This can be part of a function to create the light curve plot
-#-----------------------------------------------------------
-
-#max time
-maxt = max(time)
-
-#We expect to have n_transits
-n_transits = ( maxt - T0 ) / P
-n_transits = int(n_transits + 1)
-
-T0_vec = [0.0]*n_transits
-for n in range(0,n_transits):
-  T0_vec[n] = T0 + n*P
-
-plt.figure(1,figsize=(25/2.56,6.5/2.56))
-plt.xlim(min(time)-5,max(time)+5)
-for n in range(0,n_transits):
-  plt.axvline(x=T0_vec[n],c='r',ls='--',lw=1,alpha=0.3)
-plt.plot(time,flux,'.',markersize=5)
-plt.minorticks_on()
-plt.xlabel('BJD - 2454833')
-plt.ylabel('Relative flux')
-plt.savefig('light_curve.pdf',bbox_inches='tight')
-plt.show()
-
-#-----------------------------------------------------------
+plot_light_curve()
 
 #limits first transit
 ftl = T0 - td / 2.0
@@ -90,19 +65,7 @@ xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits)
 #   it can be a smaller number of transits than expected
 total_n_transits = len(xt_ot)
 
-plt.figure(1,figsize=(7,1.708*total_n_transits/2))
-gs = gridspec.GridSpec(nrows=(total_n_transits+1)/2,ncols=2)
-for i in range(0,total_n_transits):
-  plt.subplot(gs[i])
-  plt.xlabel('time (days)')
-  plt.ylabel('Relative flux')
-  plt.plot(xt[i],ft[i],'k')
-  plt.plot(xt_ot[i],ft_ot[i],'ro')
-  plt.minorticks_on()
-  plt.ticklabel_format(useOffset=False, axis='y')
-plt.show()
-
-
+plot_individual_tr1()
 
 #Time to fit the data to a quadratic law
 #this will save the polinomio coefs
@@ -117,7 +80,7 @@ for i in range(0,total_n_transits):
 #dtime, dflux -> detrended time and flux data
 #A one dimensional array with all the data
 dtime = []
-dflux = [] 
+dflux = []
 for i in range(0,total_n_transits):
   for j in range(0,len(xt[i])):
     dtime.append(xt[i][j])
@@ -125,20 +88,9 @@ for i in range(0,total_n_transits):
 
 new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits)
 
-plt.figure(1,figsize=(12,3.708*total_n_transits/2))
-gs = gridspec.GridSpec(nrows=(total_n_transits+1)/2,ncols=2)
-for i in range(0,total_n_transits):
-  plt.subplot(gs[i])
-  plt.xlabel('time (days)')
-  plt.ylabel('Relative flux')
-  plt.plot(new_xt[i],new_ft[i],'k')
-  plt.plot(new_xt_ot[i],new_ft_ot[i],'ro')
-  plt.minorticks_on()
-  plt.ticklabel_format(useOffset=False, axis='y')
-plt.show()
+phase_xt = list(new_xt)
 
-
-
+plot_individual_tr1()
 
 #Create a vector with all the out of transit data
 total_ft_ot = np.concatenate(new_ft_ot)
@@ -166,9 +118,17 @@ for i in range(0,total_n_transits):
   pfactor = new_xt[i][len(new_xt[i])-1] - new_xt[0][0]
   pfactor = np.float64(int(pfactor / P))
   #plt.plot(new_xt[i]-pfactor*P,new_ft[i],'.')
-  plt.errorbar(new_xt[i]-pfactor*P,new_ft[i],fsigma[i],fmt='.')
+  phase_xt[i] = new_xt[i] - pfactor*P
+  #plt.errorbar(new_xt[i]-pfactor*P,new_ft[i],fsigma[i],fmt='.')
+  plt.errorbar(phase_xt[i],new_ft[i],fsigma[i],fmt='.')
   plt.ticklabel_format(useOffset=False, axis='y')
 plt.show()
+
+#Make the sigma clipping here
+#--------------------------------------------
+
+
+#--------------------------------------------
 
 
 #Let us create or detrended file
@@ -176,7 +136,7 @@ out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
 of = open(out_f,'w')
 #of.write('#This detrended light curve was created with pyaneti/lunas\n')
 for i in range(0,len(dtime)):
-  #of.write(' %8.8f   %8.8f  %8.8f \n'%(dtime[i],dflux[i],total_ft_ot))
-  of.write(' %8.8f   %8.8f  %8.8f \n'%(dtime[i],dflux[i],total_fsigma[i]))
+  of.write(' %8.8f   %8.8f  %8.8f \n'%(dtime[i],dflux[i],total_ft_ot))
+  #of.write(' %8.8f   %8.8f  %8.8f \n'%(dtime[i],dflux[i],total_fsigma[i]))
 
 of.close()
