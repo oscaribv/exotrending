@@ -5,6 +5,7 @@ from matplotlib import gridspec
 import seaborn as sns
 import pyaneti as pti
 from scipy.optimize import curve_fit
+sns.set_color_codes()
 sns.set(style='ticks')
 
 #Read the input file
@@ -51,7 +52,7 @@ for i in range(0,n_transits):
 
 #now the extract_transits functions, get the transits and the
 #out-of-the-transit data
-xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits)
+xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits,2)
 
 #If there are gaps in the data, the number of transit can be smaller than the
 #expected number of transits. The real number of transits is:
@@ -91,10 +92,10 @@ for i in range(0,total_n_transits):
 #---------------   Data corrected   -----------------------
 
 #Find the transits in the corrected data
-new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits)
+new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits,1)
 
 #Plot the corrected transits
-plot_individual_tr2()
+#plot_individual_tr2()
 
 #phase_xt vector would have the folded-time data
 phase_xt = list(new_xt)
@@ -122,10 +123,11 @@ vec_phase = np.concatenate(phase_xt)
 vec_flux  = np.concatenate(new_ft)
 
 #Setting priors
-p0 = [10.0,0.5,0.5,0.1]
+p0 = [a,u1,u2,k]
 
 #params limits
-param_bounds=([2.0,0.0,0.0,0.0],[1000.,1.0,1.0,0.2])
+param_bounds=([min_a,min_u1,min_u1,min_k], \
+              [max_a,max_u1,max_u2,max_k])
 
 #Find the best fit values by fitting a Mandel & Agol (2010) model
 popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
@@ -145,10 +147,10 @@ zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
 zero_flux = vec_flux - zero_flux
 
-a,b = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
+c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
 
-new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits)
+new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits,1)
 err_flux = np.std(np.concatenate(new_ft_ot)) #calculated from the out of the transit points
 
 #Let us create or detrended file

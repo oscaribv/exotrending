@@ -3,7 +3,7 @@
 #xt, ft -> time and flux between the limits ltl and rtl
 #xt_ot, ft_ot -> time and flux between the limits ltl and rtl
 #                but outside the transit
-def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_local):
+def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_local,toler):
   xt = []
   ft = []
   xt_ot = [] #out of transit time
@@ -24,7 +24,7 @@ def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_l
            time_local[i] > ( t0_dummy + ttran/2. ) ):
         xt_ot_dummy.append(time_local[i])
         ft_ot_dummy.append(flux_local[i])
-    elif(time_local[i] > rtl[j] and len(xt_ot_dummy) > 2 ): #to skip gaps in data
+    elif(time_local[i] > rtl[j] and len(xt_ot_dummy) > toler ): #to skip gaps in data
       xt.append(list(xt_dummy))
       ft.append(list(ft_dummy))
       xt_dummy = []
@@ -130,7 +130,7 @@ def sigma_clip(x,y,z,limit_sigma=3):
     dummy_z = []
     n = n + 1
 
-  plt.plot(x,y,'Dr',new_x,new_y,'ob')
+  plt.plot(x,y,'or',new_x,new_y,'ob')
   plt.show()
 
   return new_x, new_y
