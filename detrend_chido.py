@@ -8,6 +8,7 @@ from scipy.optimize import curve_fit
 sns.set(style='ticks')
 
 lc_file='dbf1.txt'
+lsigma = 3
 #lc_file='C8_3386_left.txt'
 #lc_file='C8_3386_right.txt'
 #Ephemeris planet b
@@ -169,45 +170,13 @@ zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
 zero_flux = vec_flux - zero_flux
 
-#x and y are the original arrays, z is the vector with the residuals
-def sigma_clip(x,y,z,limit_sigma=3):
-  control = True
-  new_y = list(y)
-  new_x = list(x)
-  new_z = list(z)
-  dummy_x = []
-  dummy_y = []
-  dummy_z = []
-  n = 1
-  while ( control ):
-    print 'sigma clipping iteration', n
-    sigma = np.std(new_z)
-    for i in range(0,len(new_z)):
-      if ( np.abs(new_z[i]) < limit_sigma*sigma ):
-        dummy_x.append(new_x[i])
-        dummy_y.append(new_y[i])
-        dummy_z.append(new_z[i])
-    if ( len(dummy_x) == len(new_x) ): #We did not cut, so the sigma clipping is done
-      control = False
-    new_y = list(dummy_y)
-    new_x = list(dummy_x)
-    new_z = list(dummy_z)
-    dummy_x = []
-    dummy_y = []
-    dummy_z = []
-    n = n + 1
 
-  plt.plot(x,y,'D',new_x,new_y,'o')
-  plt.show()
 
-  return new_x, new_y
-
-a,b = sigma_clip(vec_phase,vec_flux,zero_flux,3)
-a,b = sigma_clip(vec_xt,vec_flux,zero_flux,3)
+a,b = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
+a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
 
 new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits)
 err_flux = np.std(np.concatenate(new_ft_ot)) #calculated from the out of the transit points
-
 
 #Let us create or detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
