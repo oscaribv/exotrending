@@ -169,18 +169,51 @@ zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
 zero_flux = vec_flux - zero_flux
 
-#Start the sigma-clipping
+#x and y are the original arrays, z is the vector with the residuals
+def sigma_clip(x,y,z,limit_sigma=3):
+  control = True
+  new_y = list(y)
+  new_x = list(x)
+  new_z = list(z)
+  dummy_x = []
+  dummy_y = []
+  dummy_z = []
+  n = 1
+  while ( control ):
+    print 'sigma clipping iteration', n
+    sigma = np.std(new_z)
+    for i in range(0,len(new_z)):
+      if ( np.abs(new_z[i]) < limit_sigma*sigma ):
+        dummy_x.append(new_x[i])
+        dummy_y.append(new_y[i])
+        dummy_z.append(new_z[i])
+    if ( len(dummy_x) == len(new_x) ): #We did not cut, so the sigma clipping is done
+      control = False
+    new_y = list(dummy_y)
+    new_x = list(dummy_x)
+    new_z = list(dummy_z)
+    dummy_x = []
+    dummy_y = []
+    dummy_z = []
+    n = n + 1
 
-plt.plot(vec_phase,zero_flux,'o')
+  plt.plot(x,y,'D',new_x,new_y,'o')
+  plt.show()
 
-sys.exit()
+  return new_x, new_y
+
+a,b = sigma_clip(vec_phase,vec_flux,zero_flux,3)
+a,b = sigma_clip(vec_xt,vec_flux,zero_flux,3)
+
+new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits)
+err_flux = np.std(np.concatenate(new_ft_ot)) #calculated from the out of the transit points
+
 
 #Let us create or detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
 of = open(out_f,'w')
 #of.write('#This detrended light curve was created with pyaneti/lunas\n')
-for i in range(0,len(dtime)):
-  of.write(' %8.8f   %8.8f  %8.8f \n'%(dtime[i],dflux[i],total_ft_ot))
-  #of.write(' %8.8f   %8.8f  %8.8f \n'%(dtime[i],dflux[i],total_fsigma[i]))
+for i in range(0,len(a)):
+  of.write(' %8.8f   %8.8f  %8.8f \n'%(a[i],b[i],err_flux))
 
 of.close()
