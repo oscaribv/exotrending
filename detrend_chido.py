@@ -3,13 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import seaborn as sns
+import pyaneti as pti
+from scipy.optimize import curve_fit
 sns.set(style='ticks')
 
 lc_file='dbf1.txt'
 #lc_file='C8_3386_left.txt'
 #lc_file='C8_3386_right.txt'
 #Ephemeris planet b
-planet = 'c'
+planet = 'b'
 if ( planet == 'b' ):
   lc_file='dbf1-b.txt'
   P = 0.959628
@@ -127,9 +129,51 @@ plt.show()
 #Make the sigma clipping here
 #--------------------------------------------
 
-
 #--------------------------------------------
+#z has to be calculated from the t
+def transito(t,a,u1,u2,k):
+  global T0, P
 
+  flag = [False,False,True,False]
+  pars = [T0,P,0.0,np.pi/2,0.0,a]
+
+  t0_vec = [T0]
+  z = pti.find_z(t,pars,t0_vec,flag)
+  flujo, dummy_var = pti.occultquad(z,u1,u2,k)
+
+  return flujo
+
+vec_xt = np.concatenate(new_xt)
+vec_phase = np.concatenate(phase_xt)
+vec_flux  = np.concatenate(new_ft)
+
+p0 = [10.0,0.5,0.5,0.1]
+
+#bounds = [[2.0,10.0],[0.0,1.0],[0.0,1.0],[0.0,0.2]]
+param_bounds=([2.0,0.0,0.0,0.0],[100.,1.0,1.0,0.2])
+
+popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
+
+
+#Let us create the data to plot the model
+fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
+
+#Plot fitted light curve
+plt.plot(new_xt[0],fitted_flux,vec_phase,vec_flux,'o')
+plt.show()
+
+#Start to do the sigma clipping
+
+#Extract the best model from the data
+zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
+
+zero_flux = vec_flux - zero_flux
+
+#Start the sigma-clipping
+
+plt.plot(vec_phase,zero_flux,'o')
+
+sys.exit()
 
 #Let us create or detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
