@@ -114,7 +114,6 @@ def sigma_clip(x,y,z,limit_sigma=3):
   dummy_z = []
   n = 1
   while ( control ):
-    print 'sigma clipping iteration', n
     sigma = np.std(new_z)
     for i in range(0,len(new_z)):
       if ( np.abs(new_z[i]) < limit_sigma*sigma ):
@@ -131,8 +130,20 @@ def sigma_clip(x,y,z,limit_sigma=3):
     dummy_z = []
     n = n + 1
 
-  plt.plot(x,y,'D',new_x,new_y,'o')
+  plt.plot(x,y,'Dr',new_x,new_y,'ob')
   plt.show()
 
   return new_x, new_y
 
+#z has to be calculated from the t
+def transito(t,a,u1,u2,k):
+  global T0, P
+
+  flag = [False,False,True,False]
+  pars = [T0,P,0.0,np.pi/2,0.0,a]
+
+  t0_vec = [T0]
+  z = pti.find_z(t,pars,t0_vec,flag)
+  flujo, dummy_var = pti.occultquad(z,u1,u2,k)
+
+  return flujo

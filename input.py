@@ -1,6 +1,7 @@
 #Input routines
 lc_file='dbf1.txt'
 lsigma = 3
+porder = 2
 #lc_file='C8_3386_left.txt'
 #lc_file='C8_3386_right.txt'
 #Ephemeris planet b

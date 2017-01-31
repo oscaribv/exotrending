@@ -7,76 +7,72 @@ import pyaneti as pti
 from scipy.optimize import curve_fit
 sns.set(style='ticks')
 
-lc_file='dbf1.txt'
-lsigma = 3
-#lc_file='C8_3386_left.txt'
-#lc_file='C8_3386_right.txt'
-#Ephemeris planet b
-planet = 'b'
-if ( planet == 'b' ):
-  lc_file='dbf1-b.txt'
-  P = 0.959628
-  T0 = 7394.37450 - 4833.0
-  #T0 = 2589.203712
-  ttran = 1.7/24.0
-  td = ttran + 4.1/24.0
-if ( planet == 'c' ):
-  lc_file='dbf1-c.txt'
-  P = 29.8454
-  T0 = 7394.9788 - 4833.0
-  ttran = 4.81/24.0
-  td = ttran + 8./24.0
+#Read the input file
+execfile("./input.py")
 
-#Load functions' file
+#Load the functions file
 execfile("./functions.py")
 
-#time, flux = np.loadtxt(lc_file,delimiter=',', \
-time, flux = np.loadtxt(lc_file, \
-            comments='#',unpack=True, usecols=[0,1])
+#Which kind of file?
+#Vanderburg-like
+if ( file_type[0] == 'V' ):
+  time, flux = np.loadtxt(lc_file, comments='#',unpack=True, usecols=[0,1])
+#Everest-like
+elif( file_type[0] == 'E' ):
+  time, flux = np.loadtxt(lc_file,delimiter=',',comments='#',unpack=True, usecols=[0,1])
 
-
-#limits first transit
+#Let us obtain the limits of the first transit,
+#Transit duration + out of the transit data (this comes from the input file)
 ftl = T0 - td / 2.0
 ftr = T0 + td / 2.0
 
+#Plot a nice light curve, to change plot options in functions.py
 plot_light_curve()
 
-#limits first transit
-ftl = T0 - td / 2.0
-ftr = T0 + td / 2.0
+#---------------Time to find the transits-----------------------
 
-#max time
+#The maximum value of the time
 maxt = max(time)
 
-#We expect to have n_transits
+#Since we know the period, we can calcualte the expect number
+# of transits -> n_transits
 n_transits = ( maxt - T0 ) / P
 n_transits = int(n_transits + 1)
 
+#Vectors to save the limits of each transit
 #left transit limits
 ltl = [None]*n_transits
 #rigth transit limits
 rtl = [None]*n_transits
-
 #Fill the transit limit vectors
 for i in range(0,n_transits):
   ltl[i] = ftl + P*i
   rtl[i] = ftr + P*i
 
+#now the extract_transits functions, get the transits and the
+#out-of-the-transit data
 xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits)
 
-#If there are gaps in the data,
-#   it can be a smaller number of transits than expected
+#If there are gaps in the data, the number of transit can be smaller than the
+#expected number of transits. The real number of transits is:
 total_n_transits = len(xt_ot)
 
+#Plot the individual transits
 plot_individual_tr1()
 
-#Time to fit the data to a quadratic law
+#---------------  Transits found  -----------------------
+
+#---------------   Correct data   -----------------------
+
+#Time to detrend the data
 #this will save the polinomio coefs
 coefs = [None]*total_n_transits
-#this will save the polinomi funcions
+#this will save the polinomio funcions
 polin = [None]*total_n_transits
+
+#Find the best fit for each out-of-transit points
 for i in range(0,total_n_transits):
-  coefs[i] = np.polyfit(xt_ot[i],ft_ot[i],2) #2nd order polynomial
+  coefs[i] = np.polyfit(xt_ot[i],ft_ot[i],porder) #2nd order polynomial
   polin[i] = np.poly1d((coefs[i]))
 
 #Now, let us correct the transit data
@@ -89,72 +85,51 @@ for i in range(0,total_n_transits):
     dtime.append(xt[i][j])
     dflux.append(ft[i][j] / polin[i](xt[i][j]) )
 
+#Now all the detrending data is stored in a single vector
+#dtime and dflux
+
+#---------------   Data corrected   -----------------------
+
+#Find the transits in the corrected data
 new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits)
 
+#Plot the corrected transits
+plot_individual_tr2()
+
+#phase_xt vector would have the folded-time data
 phase_xt = list(new_xt)
 
-plot_individual_tr1()
-
-#Create a vector with all the out of transit data
-total_ft_ot = np.concatenate(new_ft_ot)
-
-#plt.hist(total_ft_ot,bins=50)
-#plt.ticklabel_format(useOffset=False, axis='x')
-#plt.show()
-
-fsigma = [None]*len(new_ft_ot)
-
-for i in range(0,len(fsigma)):
-  fsigma[i] = np.std(new_ft_ot[i])
-
-total_fsigma = [None]*len(dtime)
-n = 0
-for i in range(0,len(new_xt)):
-  for j in range(0,len(xt[i])):
-    total_fsigma[n] = fsigma[i]
-    n = n + 1
-
-#Let us folded all the transits
+#Let us fold all the transits and plot the final result
 plt.figure(1,figsize=(10,10/1.618))
 for i in range(0,total_n_transits):
   plt.title('Folded transits')
   pfactor = new_xt[i][len(new_xt[i])-1] - new_xt[0][0]
   pfactor = np.float64(int(pfactor / P))
-  #plt.plot(new_xt[i]-pfactor*P,new_ft[i],'.')
   phase_xt[i] = new_xt[i] - pfactor*P
-  #plt.errorbar(new_xt[i]-pfactor*P,new_ft[i],fsigma[i],fmt='.')
-  plt.errorbar(phase_xt[i],new_ft[i],fsigma[i],fmt='.')
+  plt.plot(phase_xt[i],new_ft[i],'.')
   plt.ticklabel_format(useOffset=False, axis='y')
 plt.show()
 
 #Make the sigma clipping here
 #--------------------------------------------
 
-#--------------------------------------------
-#z has to be calculated from the t
-def transito(t,a,u1,u2,k):
-  global T0, P
-
-  flag = [False,False,True,False]
-  pars = [T0,P,0.0,np.pi/2,0.0,a]
-
-  t0_vec = [T0]
-  z = pti.find_z(t,pars,t0_vec,flag)
-  flujo, dummy_var = pti.occultquad(z,u1,u2,k)
-
-  return flujo
-
+#Create the vectos which will be used during the fit
+#The vector with the time stamps
 vec_xt = np.concatenate(new_xt)
+#The vector with the time-folded data
 vec_phase = np.concatenate(phase_xt)
+#The vector with the flux data
 vec_flux  = np.concatenate(new_ft)
 
+#Setting priors
 p0 = [10.0,0.5,0.5,0.1]
 
-#bounds = [[2.0,10.0],[0.0,1.0],[0.0,1.0],[0.0,0.2]]
-param_bounds=([2.0,0.0,0.0,0.0],[100.,1.0,1.0,0.2])
+#params limits
+param_bounds=([2.0,0.0,0.0,0.0],[1000.,1.0,1.0,0.2])
 
+#Find the best fit values by fitting a Mandel & Agol (2010) model
 popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
-
+#popt[0] = a, popt[1] = u1, popt[2] = u2, popt[3] = k = Rp/R*
 
 #Let us create the data to plot the model
 fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
@@ -169,8 +144,6 @@ plt.show()
 zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
 zero_flux = vec_flux - zero_flux
-
-
 
 a,b = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
