@@ -83,10 +83,19 @@ for i in range(0,total_n_transits):
 #A one dimensional array with all the data
 dtime = []
 dflux = []
-for i in range(0,total_n_transits):
-  for j in range(0,len(xt[i])):
-    dtime.append(xt[i][j])
-    dflux.append(ft[i][j] / polin[i](xt[i][j]) )
+
+new_xt = list(xt)
+new_ft = list(ft)
+new_xt_ot = list(xt_ot)
+new_ft_ot = list(ft_ot)
+for i in range(0,len(ft)):
+  for j in range(0,len(ft[i])):
+    #dtime.append(xt[i][j])
+    new_ft[i][j] = ft[i][j] / polin[i](xt[i][j])
+for i in range(0,len(ft_ot)):
+  for j in range(0,len(ft_ot[i])):
+    #dtime.append(xt[i][j])
+    new_ft_ot[i][j] = ft_ot[i][j] / polin[i](xt_ot[i][j])
 
 #Now all the detrending data is stored in a single vector
 #dtime and dflux
@@ -94,7 +103,7 @@ for i in range(0,total_n_transits):
 #---------------   Data corrected   -----------------------
 
 #Find the transits in the corrected data
-new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits,1)
+#new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits,0)
 
 #Plot the corrected transits
 plot_individual_tr2()
@@ -135,8 +144,12 @@ param_bounds=([min_a,min_u1,min_u1,min_k], \
 popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
 #popt[0] = a, popt[1] = u1, popt[2] = u2, popt[3] = k = Rp/R*
 
+
 #Let us create the data to plot the model
-fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
+if ( 1 == 0 ):
+  fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
+else:
+  fitted_flux = transito(new_xt[0],a,u1,u2,k)
 
 #Plot fitted light curve
 plt.plot(new_xt[0],fitted_flux,vec_phase,vec_flux,'o')
@@ -149,8 +162,16 @@ zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
 zero_flux = vec_flux - zero_flux
 
+ot_fvector = np.concatenate(new_ft_ot)
+ot_xvector = np.concatenate(new_xt_ot)
+zero_flux_ot = [1.0]*len(ot_fvector)
+zero_flux_ot = zero_flux_ot - ot_fvector
+
 c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
+
+#Let us do the sigma clipping for the out of the transit data
+c,d = sigma_clip(ot_xvector,ot_fvector,zero_flux_ot,lsigma)
 
 #Extract the best model from the data
 #zero_flux = transito(dtime, popt[0], popt[1], popt[2], popt[3])
@@ -160,8 +181,10 @@ a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
 #c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
 #a,b = sigma_clip(dtime,dflux,zero_flux,lsigma)
 
-#new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits,1)
-err_flux = np.std(np.concatenate(new_ft_ot)) #calculated from the out of the transit points
+err_flux = np.std(d) #calculated from the out of the transit points
+
+#err_flux = 0.00004925
+#err_flux = 0.00007044
 
 #Let us create or detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
