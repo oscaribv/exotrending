@@ -4,16 +4,14 @@
 !  the star and planet centers. Eq. (5), ( z = r_sky) from
 !  Winn, 2010, Transit and Occultations.
 !------------------------------------------------------------
-subroutine find_z(t,pars,t0_vec,flag,z,ts,n_transits)
+subroutine find_z(t,pars,z,ts)
 implicit none
 
 !In/Out variables
-  integer, intent(in) :: ts, n_transits
+  integer, intent(in) :: ts
   double precision, intent(in), dimension(0:ts-1) :: t
   double precision, intent(in), dimension(0:5) :: pars
-  double precision, intent(in), dimension(0:n_transits-1) :: t0_vec
   double precision, intent(out), dimension(0:ts-1) :: z
-  logical, intent(in), dimension(0:3) :: flag
 !Local variables
   double precision, dimension(0:ts-1) :: ta, swt
   double precision :: t0, P, e, w, i, a
@@ -31,15 +29,7 @@ implicit none
   i   = pars(4)
   a   = pars(5)
 
-  if ( flag(0) ) P = 1.d0**pars(1)
-  if ( flag(1) ) then
-    e = pars(2) * pars(2) + pars(3) * pars(3)
-    w = atan2(pars(2),pars(3))
-  end if
-  !Let us get the w of the planet
-  w = w + pi
-  if (flag(3)) a = 10.0**a
-  if (flag(2)) i = acos( i / a * ( 1.d0 + e * sin(w) ) / ( 1.d0 - e*e ) )
+  i = acos( i / a * ( 1.d0 + e * sin(w) ) / ( 1.d0 - e*e ) )
 
   !Let us estimate the eclipse duration to rule out the no real recondary transits
   !For a planet with radius 0.0. This would not affect the method
@@ -47,18 +37,8 @@ implicit none
   ttot = asin( ttot / a / sin(i) )
   ttot = P * ttot / pi * sqrt(1.0 - e*e) / ( 1.d0 + e*sin(w) )
 
- !Obtain the eccentric anomaly by using find_anomaly
-  if ( 1 == 1 ) then
-   !Calculate the projected distance depending on the T0
-   do n = 0, ts - 1
-     j = int( ( t(n) - t0 ) / P )
-     call find_anomaly(t(n),t0_vec(j),e,w,P,ta(n),1)
-     !print *, t0_vec(j)
-   end do
-  else if ( 1 == 0) then
-   !Calculate the projected distance assuming there are no TTVs
-   call find_anomaly(t,t0,e,w,P,ta,ts)
-  end if
+ !Calculate the projected distance assuming there are no TTVs
+ call find_anomaly(t,t0,e,w,P,ta,ts)
 
   swt = sin(w+ta)
 
@@ -74,5 +54,92 @@ implicit none
     if ( t(n) > t0 + j*P + ttot .and. t(n) < t0 + (j+1)*P - ttot ) &
       z(n) = 1.d1
   end do
+
+end subroutine
+
+!------------------------------------------------------------
+!This subrouotine finds the time of periastron passage
+!by knowing the transit time
+!------------------------------------------------------------
+subroutine find_tp(t0, e, w, P, tp)
+implicit none
+!In/Out variables
+  double precision, intent(in) :: t0, e, w, P
+  double precision, intent(out) :: tp
+!Local variables
+  double precision :: theta_p
+  double precision :: ereal, eimag
+  double precision :: pi = 3.1415926535897d0
+
+  ereal = e + cos( pi / 2.d0  - w)
+  eimag = sqrt( 1.d0 - e * e ) * sin( pi/ 2.d0  - w )
+  theta_p = atan2(eimag, ereal )
+  theta_p = theta_p - e * sin( theta_p )
+
+  tp = t0 - theta_p * p / 2.d0 / pi
+
+end subroutine
+
+!------------------------------------------------------------
+!This subroutine finds the true anomaly of an eccentric orbit
+!by using the Newton-Raphson (NR)  algorithm
+!The input parameters are:
+! man -> mean anomaly, ec -> eccentricity, delta -> NR limit
+! imax -> iteration limit for NR, dman -> man dimension
+!The output parameters are:
+! ta -> True anomaly (vector with the same dimension that man)
+!------------------------------------------------------------
+subroutine find_anomaly(t,t0,e,w,P,ta,dt)
+implicit none
+!In/Out variables
+  integer, intent(in) :: dt
+  double precision, intent(in) , dimension(0:dt-1) :: t
+  double precision, intent(out), dimension(0:dt-1) :: ta
+  double precision, intent(in) :: t0, e, w, P
+!Local variables
+  integer :: i,n
+  double precision, dimension(0:dt-1) :: ma, f, df, eimag, ereal
+  double precision :: two_pi = 2.d0*3.1415926535897932384626d0
+  double precision :: uno, tp
+  double precision :: fmin=1.d-8
+  integer :: imax = int(1e8)
+!
+  uno = 1.0d0
+
+  call find_tp(t0,e,w,P,tp)
+
+  !Calculate the mean anomaly
+  ma = two_pi * ( t - tp ) / P
+
+  !calculate the eccentric anomaly
+  !Using Newthon-Raphson algorithm
+  ta(:) = ma(:)
+  f(:) = fmin * 1.0d1
+  n = 0
+
+  do i = 0, dt-1
+    do while ( abs(f(i)) > fmin .and. n < imax )
+      f(i)   = ta(i) - e * sin(ta(i)) - ma(i)
+      df(i)  = uno - e * cos(ta(i))
+      ta(i)  = ta(i) - f(i) / df(i)
+      n = n + 1
+    end do
+  end do
+
+  if ( n > imax ) then !This should never happen!
+    print *, 'I am tired, too much Newton-Raphson for me!'
+    print *, e, f
+    stop
+  end if
+
+  !calculate the true anomaly
+  !Relation between true anomaly(ta) and eccentric anomaly(ea) is
+  !tan(ta) = sqrt(1-e^2) sin (ea) / ( cos(ea) - e ) https://en.wikipedia.org/wiki/True_anomaly
+  !In a complex plane, this is =  (cos(ea) - e) + i (sqrt(1-e^2) *sin(ea) )
+  !with modulus = 1 - e cos(ea)
+  eimag = ( sqrt(uno-e*e) * sin(ta) ) !/ (uno-e*cos(ta))
+  ereal = ( cos (ta) - e ) !/ (uno-e*cos(ta))
+  !Therefore, the tue anomaly is
+  ta = atan2(eimag,ereal)
 
 end subroutine

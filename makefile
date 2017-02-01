@@ -10,9 +10,10 @@ fc=gnu95
 cc=unix 
 
 FLAGS= -c -m 
-SOURCES= quad.f90
+SOURCES= quad.f90 \
+         findz.f90
 
-EXECUTABLE=mandelagol
+EXECUTABLE=orbits
 
 all: $(EXECUTABLE) 
 $(EXECUTABLE):$(SOURCES)
