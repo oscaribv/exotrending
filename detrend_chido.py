@@ -1,9 +1,11 @@
+#!/usr/bin/python
+
 #Load libraries
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import seaborn as sns
-import pyaneti as pti
+import orbits as pti
 from scipy.optimize import curve_fit
 sns.set_color_codes()
 sns.set(style='ticks')
@@ -95,7 +97,7 @@ for i in range(0,total_n_transits):
 new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits,1)
 
 #Plot the corrected transits
-#plot_individual_tr2()
+plot_individual_tr2()
 
 #phase_xt vector would have the folded-time data
 phase_xt = list(new_xt)
@@ -150,7 +152,15 @@ zero_flux = vec_flux - zero_flux
 c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
 
-new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits,1)
+#Extract the best model from the data
+#zero_flux = transito(dtime, popt[0], popt[1], popt[2], popt[3])
+
+#zero_flux = dflux - zero_flux
+
+#c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
+#a,b = sigma_clip(dtime,dflux,zero_flux,lsigma)
+
+#new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,a,b,ltl,rtl,n_transits,1)
 err_flux = np.std(np.concatenate(new_ft_ot)) #calculated from the out of the transit points
 
 #Let us create or detrended file
