@@ -36,14 +36,12 @@ def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_l
       j = j + 1
       if ( j  == n_transits ):
        break
-    elif(time_local[i] > rtl[j] and len(xt_ot_dummy) < 2 ): #to skip gaps in data
+    elif(time_local[i] > rtl[j] and len(xt_ot_dummy) <= toler ): #to skip gaps in data
       j = j + 1
       xt_dummy = []
       ft_dummy = []
       xt_ot_dummy = []
       ft_ot_dummy = []
-      if ( j  == n_transits ):
-       break
 
   print 'I found', len(xt), 'transits'
 
@@ -139,11 +137,9 @@ def sigma_clip(x,y,z,limit_sigma=3):
 def transito(t,a,u1,u2,k):
   global T0, P
 
-  flag = [False,False,True,False]
   pars = [T0,P,0.0,np.pi/2,0.0,a]
 
-  t0_vec = [T0]
-  z = pti.find_z(t,pars,t0_vec,flag)
+  z = pti.find_z(t,pars)
   flujo, dummy_var = pti.occultquad(z,u1,u2,k)
 
   return flujo
