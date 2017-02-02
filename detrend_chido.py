@@ -1,20 +1,25 @@
 #!/usr/bin/python
 
 #Load libraries
+import sys
+sys.path.append('./src')
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-import seaborn as sns
 import orbits as pti
 from scipy.optimize import curve_fit
-sns.set_color_codes()
-sns.set(style='ticks')
 
 #Read the input file
-execfile("./input.py")
+execfile("src/default.py")
+execfile("input.py")
+
+if ( is_seaborn ):
+  import seaborn as sns
+  sns.set_color_codes()
+  sns.set(style='ticks')
 
 #Load the functions file
-execfile("./functions.py")
+execfile("src/functions.py")
 
 #Which kind of file?
 #Vanderburg-like
@@ -23,6 +28,10 @@ if ( file_type[0] == 'V' ):
 #Everest-like
 elif( file_type[0] == 'E' ):
   time, flux = np.loadtxt(lc_file,delimiter=',',comments='#',unpack=True, usecols=[0,1])
+
+mean_flux = np.mean(flux)
+
+flux = flux / mean_flux
 
 #Let us obtain the limits of the first transit,
 #Transit duration + out of the transit data (this comes from the input file)
@@ -54,7 +63,7 @@ for i in range(0,n_transits):
 
 #now the extract_transits functions, get the transits and the
 #out-of-the-transit data
-xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits,2)
+xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits,toler)
 
 #If there are gaps in the data, the number of transit can be smaller than the
 #expected number of transits. The real number of transits is:
@@ -75,7 +84,7 @@ polin = [None]*total_n_transits
 
 #Find the best fit for each out-of-transit points
 for i in range(0,total_n_transits):
-  coefs[i] = np.polyfit(xt_ot[i],ft_ot[i],porder) #2nd order polynomial
+  coefs[i] = np.polyfit(xt_ot[i],ft_ot[i],porder)
   polin[i] = np.poly1d((coefs[i]))
 
 #Now, let us correct the transit data
@@ -91,19 +100,18 @@ new_ft_ot = list(ft_ot)
 for i in range(0,len(ft)):
   for j in range(0,len(ft[i])):
     #dtime.append(xt[i][j])
-    new_ft[i][j] = ft[i][j] / polin[i](xt[i][j])
+#    new_ft[i][j] = ft[i][j] / polin[i](xt[i][j])
+    new_ft[i][j] = ft[i][j] - polin[i](xt[i][j]) + 1.0
 for i in range(0,len(ft_ot)):
   for j in range(0,len(ft_ot[i])):
     #dtime.append(xt[i][j])
-    new_ft_ot[i][j] = ft_ot[i][j] / polin[i](xt_ot[i][j])
+    #new_ft_ot[i][j] = ft_ot[i][j] / polin[i](xt_ot[i][j])
+    new_ft_ot[i][j] = ft_ot[i][j] - polin[i](xt_ot[i][j]) + 1.0
 
 #Now all the detrending data is stored in a single vector
 #dtime and dflux
 
 #---------------   Data corrected   -----------------------
-
-#Find the transits in the corrected data
-#new_xt, new_ft, new_xt_ot, new_ft_ot = extract_transits(T0,P,dtime,dflux,ltl,rtl,n_transits,0)
 
 #Plot the corrected transits
 plot_individual_tr2()
@@ -146,10 +154,10 @@ popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
 
 
 #Let us create the data to plot the model
-if ( 1 == 0 ):
-  fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
-else:
+if ( is_fix_parameters ):
   fitted_flux = transito(new_xt[0],a,u1,u2,k)
+else:
+  fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
 
 #Plot fitted light curve
 plt.plot(new_xt[0],fitted_flux,vec_phase,vec_flux,'o')
@@ -173,18 +181,9 @@ a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
 #Let us do the sigma clipping for the out of the transit data
 c,d = sigma_clip(ot_xvector,ot_fvector,zero_flux_ot,lsigma)
 
-#Extract the best model from the data
-#zero_flux = transito(dtime, popt[0], popt[1], popt[2], popt[3])
-
-#zero_flux = dflux - zero_flux
-
-#c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
-#a,b = sigma_clip(dtime,dflux,zero_flux,lsigma)
-
 err_flux = np.std(d) #calculated from the out of the transit points
-
-#err_flux = 0.00004925
-#err_flux = 0.00007044
+if ( fix_error ):
+  err_flux = fixed_error
 
 #Let us create or detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]

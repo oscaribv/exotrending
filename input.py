@@ -1,34 +1,23 @@
-#Input routines
-lc_file='dbf1.txt'
-lsigma = 3
+#Input file
+lc_file='warm_jupiter.dat'
+lsigma = 3.0
 porder = 2
-lc_file='C8_3386_left.txt'
-lc_file='C8_3386_right.txt'
-#Ephemeris planet b
-planet = 'b'
-file_type = 'E'
-if ( planet == 'b' ):
-  #lc_file='dbf1-b.txt'
-  lc_file='C8.txt'
-  P = 0.959628
-  T0 = 7394.37450 - 4833.0
-  #T0 = 2589.203712
-  ttran = 1.7/24.0
-  td = ttran + 4.1/24.0
-if ( planet == 'c' ):
-  lc_file='C8.txt'
-  #lc_file='dbf1-c.txt'
-  P = 29.8454
-  T0 = 7394.9788 - 4833.0
-  ttran = 4.81/24.0
-  td = ttran + 5./24.0
+toler = 2
+fixed_error = 1.0
+fix_error = False
+is_fix_parameters = False
+file_type = 'V'
+P = 28.38229
+T0 = 7325.81705 - 4833.0
+ttran = 5.0/24.0
+td = ttran + 10./24.0
 
-#priors
-a = 10.0
+a =  4.56
 u1 = 0.5
-u2 = 0.5
-k  = 0.1
+u2 = 0.41
+k  = 0.0172
 
+#prior ranges
 min_a = 2.0
 max_a = 100.0
 min_u1 = 0.0
