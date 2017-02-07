@@ -12,14 +12,14 @@ from scipy.optimize import curve_fit
 #Read the input file
 execfile("src/default.py")
 execfile("input.py")
+#Load the functions file
+execfile("src/functions.py")
 
 if ( is_seaborn ):
   import seaborn as sns
   sns.set_color_codes()
   sns.set(style='ticks')
 
-#Load the functions file
-execfile("src/functions.py")
 
 #Which kind of file?
 #Vanderburg-like
@@ -88,28 +88,25 @@ for i in range(0,total_n_transits):
   polin[i] = np.poly1d((coefs[i]))
 
 #Now, let us correct the transit data
-#dtime, dflux -> detrended time and flux data
-#A one dimensional array with all the data
-dtime = []
-dflux = []
-
-new_xt = list(xt)
-new_ft = list(ft)
-new_xt_ot = list(xt_ot)
-new_ft_ot = list(ft_ot)
+#new_* variables -> detrended time and flux data
+new_xt = list(xt)        #time for each transit
+new_ft = list(ft)        #flux for each transit
+new_xt_ot = list(xt_ot)  #time for each out-of-transit data
+new_ft_ot = list(ft_ot)  #flux for each out-of-transit data
 for i in range(0,len(ft)):
   for j in range(0,len(ft[i])):
-    #dtime.append(xt[i][j])
-#    new_ft[i][j] = ft[i][j] / polin[i](xt[i][j])
-    new_ft[i][j] = ft[i][j] - polin[i](xt[i][j]) + 1.0
+     if ( type_detrend[0] == 'd' ):
+       new_ft[i][j] = ft[i][j] / polin[i](xt[i][j])
+     elif( type_detrend[0] == 'r' ):
+       new_ft[i][j] = ft[i][j] - polin[i](xt[i][j]) + 1.0
 for i in range(0,len(ft_ot)):
   for j in range(0,len(ft_ot[i])):
-    #dtime.append(xt[i][j])
-    #new_ft_ot[i][j] = ft_ot[i][j] / polin[i](xt_ot[i][j])
-    new_ft_ot[i][j] = ft_ot[i][j] - polin[i](xt_ot[i][j]) + 1.0
+     if ( type_detrend[0] == 'd' ):
+       new_ft_ot[i][j] = ft_ot[i][j] / polin[i](xt_ot[i][j])
+     elif( type_detrend[0] == 'r' ):
+       new_ft_ot[i][j] = ft_ot[i][j] - polin[i](xt_ot[i][j]) + 1.0
 
-#Now all the detrending data is stored in a single vector
-#dtime and dflux
+#Now all the detrending data is stored
 
 #---------------   Data corrected   -----------------------
 
