@@ -21,15 +21,10 @@ if ( is_seaborn ):
   sns.set(style='ticks')
 
 #Total time to takek into account
-td = ttrans + toutt
+td = ttran + toutt
 
-#Which kind of file?
-#Vanderburg-like
-if ( file_type[0] == 'V' ):
-  time, flux = np.loadtxt(lc_file, comments='#',unpack=True, usecols=[0,1])
-#Everest-like
-elif( file_type[0] == 'E' ):
-  time, flux = np.loadtxt(lc_file,delimiter=',',comments='#',unpack=True, usecols=[0,1])
+time, flux = np.loadtxt(lc_file,delimiter=file_separator\
+             ,comments='#',unpack=True, usecols=[0,1])
 
 mean_flux = np.mean(flux)
 
@@ -40,6 +35,7 @@ flux = flux / mean_flux
 ftl = T0 - td / 2.0
 ftr = T0 + td / 2.0
 
+print 'This is the whole light curve'
 #Plot a nice light curve, to change plot options in functions.py
 plot_light_curve()
 
@@ -71,6 +67,7 @@ xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits,toler)
 #expected number of transits. The real number of transits is:
 total_n_transits = len(xt_ot)
 
+print 'Individual detected transits'
 #Plot the individual transits
 plot_individual_tr1()
 
@@ -83,6 +80,12 @@ plot_individual_tr1()
 coefs = [None]*total_n_transits
 #this will save the polinomio funcions
 polin = [None]*total_n_transits
+
+print 'FITTING POLINOMIAL ORDER = ', porder
+if ( method[0] == 's' ):
+  print 'METHOD = SUBSTRACTION '
+if ( method[0] == 'd' ):
+  print 'METHOD = DIVISION '
 
 #Find the best fit for each out-of-transit points
 for i in range(0,total_n_transits):
@@ -97,15 +100,15 @@ new_xt_ot = list(xt_ot)  #time for each out-of-transit data
 new_ft_ot = list(ft_ot)  #flux for each out-of-transit data
 for i in range(0,len(ft)):
   for j in range(0,len(ft[i])):
-     if ( type_detrend[0] == 'd' ):
+     if ( method[0] == 'd' ):
        new_ft[i][j] = ft[i][j] / polin[i](xt[i][j])
-     elif( type_detrend[0] == 'r' ):
+     elif( method[0] == 's' ):
        new_ft[i][j] = ft[i][j] - polin[i](xt[i][j]) + 1.0
 for i in range(0,len(ft_ot)):
   for j in range(0,len(ft_ot[i])):
-     if ( type_detrend[0] == 'd' ):
+     if ( method[0] == 'd' ):
        new_ft_ot[i][j] = ft_ot[i][j] / polin[i](xt_ot[i][j])
-     elif( type_detrend[0] == 'r' ):
+     elif( method[0] == 's' ):
        new_ft_ot[i][j] = ft_ot[i][j] - polin[i](xt_ot[i][j]) + 1.0
 
 #Now all the detrending data is stored
@@ -113,11 +116,13 @@ for i in range(0,len(ft_ot)):
 #---------------   Data corrected   -----------------------
 
 #Plot the corrected transits
+print 'detrended transits'
 plot_individual_tr2()
 
 #phase_xt vector would have the folded-time data
 phase_xt = list(new_xt)
 
+print 'Folded transits'
 #Let us fold all the transits and plot the final result
 plt.figure(1,figsize=(10,10/1.618))
 for i in range(0,total_n_transits):
@@ -131,6 +136,9 @@ plt.show()
 
 #Make the sigma clipping here
 #--------------------------------------------
+
+print 'STARTING SIGMA-CLIPPING'
+print 'with = ',lsigma,'-sigma'
 
 #Create the vectos which will be used during the fit
 #The vector with the time stamps
@@ -154,15 +162,18 @@ mivec = np.arange(mixmin,mixmax,(mixmax-mixmin)/100.)
 
 #Let us create the data to plot the model
 if ( is_fix_parameters ):
+  print 'I AM USSING THE INPUT PARAMETERS'
   fitted_flux = transito(mivec,a,u1,u2,k)
   zero_flux = transito(vec_phase,a,u1,u2,k)
 else:
+  print 'I AM FITTING THE PARAMETERS'
   #Find the best fit values by fitting a Mandel & Agol (2010) model
   popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
   fitted_flux = transito(mivec, popt[0], popt[1], popt[2], popt[3])
   #Extract the best model from the data
   zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
+#print 'DOES THE CURVE LOOKS LIKE YOUR DATA?'
 #Plot fitted light curve
 plt.plot(mivec,fitted_flux,vec_phase,vec_flux,'o')
 plt.show()
@@ -175,6 +186,9 @@ ot_xvector = np.concatenate(new_xt_ot)
 zero_flux_ot = [1.0]*len(ot_fvector)
 zero_flux_ot = zero_flux_ot - ot_fvector
 
+print 'SIGMA-CLIPPING ENDED'
+print 'BLUE POINTS -> remaining data'
+print 'RED POINTS  -> removed data'
 c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma,True)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma,False)
 
@@ -187,6 +201,7 @@ if ( fix_error ):
 
 #Let us create the detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
+print "CREATING OUTPUT FILE = ", out_f
 of = open(out_f,'w')
 #of.write('#This detrended light curve was created with pyaneti/lunas\n')
 for i in range(0,len(a)):

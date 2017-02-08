@@ -10,7 +10,7 @@ lc_file='warm_jupiter.dat'
 #Period
 P = 28.38229
 #Epoch of first transit
-T0 = 7325.81705 - 4833.0
+T0 = 2492.81705
 #Transit duration in days
 ttran = 5.0/24.0
 #out of transit duration in days

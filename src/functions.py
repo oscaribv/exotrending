@@ -102,7 +102,7 @@ def plot_individual_tr2():
 
 #
 #x and y are the original arrays, z is the vector with the residuals
-def sigma_clip(x,y,z,limit_sigma=3):
+def sigma_clip(x,y,z,limit_sigma=3,is_plot=False):
   control = True
   new_y = list(y)
   new_x = list(x)
@@ -128,8 +128,9 @@ def sigma_clip(x,y,z,limit_sigma=3):
     dummy_z = []
     n = n + 1
 
-  plt.plot(x,y,'or',new_x,new_y,'ob')
-  plt.show()
+  if ( is_plot ):
+    plt.plot(x,y,'or',new_x,new_y,'ob')
+    plt.show()
 
   return new_x, new_y
 
