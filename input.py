@@ -1,20 +1,17 @@
 #Input file
+
+#the name of the file with the light curve data
 lc_file='warm_jupiter.dat'
-lsigma = 3.0
-porder = 2
-toler = 2
-fixed_error = 1.0
-fix_error = False
-is_fix_parameters = False
-file_type = 'V'
+
+#Flag to indicate if we want a plot with the seaborn library
+#is_seaborn = True
+
+#Ephemeris
+#Period
 P = 28.38229
+#Epoch of first transit
 T0 = 7325.81705 - 4833.0
+#Transit duration in days
 ttran = 5.0/24.0
-td = ttran + 10./24.0
-
-a =  4.56
-u1 = 0.5
-u2 = 0.41
-k  = 0.0172
-
-
+#out of transit duration in days
+toutt = 10./24.0

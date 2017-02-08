@@ -20,6 +20,8 @@ if ( is_seaborn ):
   sns.set_color_codes()
   sns.set(style='ticks')
 
+#Total time to takek into account
+td = ttrans + toutt
 
 #Which kind of file?
 #Vanderburg-like
@@ -123,7 +125,7 @@ for i in range(0,total_n_transits):
   pfactor = new_xt[i][len(new_xt[i])-1] - new_xt[0][0]
   pfactor = np.float64(int(pfactor / P))
   phase_xt[i] = new_xt[i] - pfactor*P
-  plt.plot(phase_xt[i],new_ft[i],'.')
+  plt.plot(phase_xt[i],new_ft[i],'o')
   plt.ticklabel_format(useOffset=False, axis='y')
 plt.show()
 
@@ -145,26 +147,27 @@ p0 = [a,u1,u2,k]
 param_bounds=([min_a,min_u1,min_u1,min_k], \
               [max_a,max_u1,max_u2,max_k])
 
-#Find the best fit values by fitting a Mandel & Agol (2010) model
-popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
-#popt[0] = a, popt[1] = u1, popt[2] = u2, popt[3] = k = Rp/R*
 
+mixmin = min(new_xt[0])
+mixmax = max(new_xt[0])
+mivec = np.arange(mixmin,mixmax,(mixmax-mixmin)/100.)
 
 #Let us create the data to plot the model
 if ( is_fix_parameters ):
-  fitted_flux = transito(new_xt[0],a,u1,u2,k)
+  fitted_flux = transito(mivec,a,u1,u2,k)
+  zero_flux = transito(vec_phase,a,u1,u2,k)
 else:
-  fitted_flux = transito(new_xt[0], popt[0], popt[1], popt[2], popt[3])
+  #Find the best fit values by fitting a Mandel & Agol (2010) model
+  popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
+  fitted_flux = transito(mivec, popt[0], popt[1], popt[2], popt[3])
+  #Extract the best model from the data
+  zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
 
 #Plot fitted light curve
-plt.plot(new_xt[0],fitted_flux,vec_phase,vec_flux,'o')
+plt.plot(mivec,fitted_flux,vec_phase,vec_flux,'o')
 plt.show()
 
 #Start to do the sigma clipping
-
-#Extract the best model from the data
-zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
-
 zero_flux = vec_flux - zero_flux
 
 ot_fvector = np.concatenate(new_ft_ot)
@@ -172,17 +175,17 @@ ot_xvector = np.concatenate(new_xt_ot)
 zero_flux_ot = [1.0]*len(ot_fvector)
 zero_flux_ot = zero_flux_ot - ot_fvector
 
-c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma)
-a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma)
+c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma,True)
+a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma,False)
 
 #Let us do the sigma clipping for the out of the transit data
-c,d = sigma_clip(ot_xvector,ot_fvector,zero_flux_ot,lsigma)
+c,d = sigma_clip(ot_xvector,ot_fvector,zero_flux_ot,lsigma,False)
 
 err_flux = np.std(d) #calculated from the out of the transit points
 if ( fix_error ):
   err_flux = fixed_error
 
-#Let us create or detrended file
+#Let us create the detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
 of = open(out_f,'w')
 #of.write('#This detrended light curve was created with pyaneti/lunas\n')
