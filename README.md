@@ -5,9 +5,15 @@
 
 ## __Introduction__
 
+* This software suite is a small compilation to detrended exoplanet transit light curves
+
+* If you have a light curve (time and flux) and some good epeheris, this code can help you!
+
+* I have only tested it with Kepler light-curves, but it should work for any file with a time and flux column.
+
 ## ** Dependencies **
 
-You need to install in your computer:
+You need to have installed:
 * gfortran
 * numpy
 * matplotlib
@@ -83,29 +89,60 @@ python detrending_chido.py
 ```
 You will see
 
+` This is the whole light curve `
+
 ![Whole light curve](images/f1.png)
 
 which is the whole light-curve, where the transit positions
  are marked with vertical dashed lines. Then
 
+` Individual detected transits `
+
 ![Detected transits](images/f2.png)
 
+`I found 3 transits`
+
 Which are the found transits (3 in this case). The next image is
+
+```
+Individual detected transits
+FITTING POLINOMIAL ORDER =  2
+METHOD = SUBSTRACTION
+detrended transits
+```
 
 ![Detrended transits](images/f3.png)
 
 Which are all the DETRENDEND transits. The next image is the
 phase-folded data to the first transit.
 
+` folded transits `
+
 ![Folded transits](images/f4.png)
 
 The next step is to fit a Mandel & Agol (2002) light curve_fit
+
+```
+STARTING SIGMA-CLIPPING
+with =  3.0 -sigma
+I AM FITTING THE PARAMETERS
+```
 
 ![Fit to data](images/f5.png)
 
 And perform the sigma clipping
 
+```
+SIGMA-CLIPPING ENDED
+BLUE POINTS -> remaining data
+RED POINTS  -> removed data
+```
+
 ![removed data points](images/f6.png)
+
+```
+CREATING OUTPUT FILE =  warm_jupiter_detrended.dat
+```
 
 Where the red points are the removed ones. The output of the code are
 the pdf file of the light_curve.pdf and the warm_jupiter_detrended.dat file,
