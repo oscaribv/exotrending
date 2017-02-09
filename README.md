@@ -1,4 +1,4 @@
-# CHI-DETENDRING #
+#EXOTRENDRING
 #### Written by Oscar Barragán
 ##### email: oscaribv@gmail.com
 ##### Updated Feb 07, 2017
