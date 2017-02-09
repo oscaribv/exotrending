@@ -1,15 +1,17 @@
 #EXOTRENDRING
 #### Written by Oscar Barragán
 ##### email: oscaribv@gmail.com
-##### Updated Feb 07, 2017
+##### Updated Feb 09, 2017
 
 ## __Introduction__
 
-* This software suite is a small compilation to detrended exoplanet transit light curves
+* This software suite is a small compilation to detrended exoplanet transit light curves.
+
+* It is very simple and it can be used straightforward.
 
 * If you have a light curve (time and flux) and some good epeheris, this code can help you!
 
-* I have only tested it with Kepler light-curves, but it should work for any file with a time and flux column.
+* I have only tested it with Kepler light curves, but it should work for any file with a time and flux column.
 
 ## ** Dependencies **
 
@@ -25,7 +27,7 @@ You need to have installed:
 You do not need install anything, just clone or download pyaneti.
 
 ```
-git clone https://github.com/oscaribv/chidetrending
+git clone https://github.com/oscaribv/exotrending
 ```
 
 The advantage about cloning the repository is the possibility to follow the changes to this package easily with git pull (learn more about git
@@ -33,9 +35,9 @@ in [https://git-scm.com/](https://git-scm.com/)).
 Or if you want
 
 ```
-wget https://github.com/oscaribv/chidetrending/archive/master.zip
+wget https://github.com/oscaribv/exotrending/archive/master.zip
 unzip master.zip
-mv chidetrending_master chidetrending
+mv exotrending_master exotrending
 ```
 
 if you choose this option, you should repeat it every time the code is updated.
@@ -44,7 +46,7 @@ Now we have to compile the file with the transit routines (we need to do this
  only one time!)
 
 ```
-cd chidetrending/src
+cd exotrending/src
 make
 ```
 If there were no errors, then you are ready to run the test case!
@@ -85,7 +87,7 @@ toutt = 10./24.0
 We are ready to run the program
 
 ```
-python detrending_chido.py
+python exotrending.py
 ```
 You will see
 
@@ -144,8 +146,14 @@ RED POINTS  -> removed data
 CREATING OUTPUT FILE =  warm_jupiter_detrended.dat
 ```
 
-Where the red points are the removed ones. The output of the code are
+Where the red points are the removed ones (I know, this is not a good
+example to show that the sigma-clipping works, but I will
+put some good example soon).
+
+ The output of the code are
 the pdf file of the light_curve.pdf and the warm_jupiter_detrended.dat file,
 which contains the detrendend light curve, where the first column is the time,
 the second the flux and the third one the error bars.
 
+## ** Acknowledgements **
+* to Mabel Valerdi, to help me as a test user.

@@ -1,7 +1,7 @@
 #-----------------------------------------------#
 #                  default.py                   #
 #        Default commands for exodetrending     #
-#       Written by Oscar Barragán, Feb 2017     #
+#       Written by Oscar Barragan, Feb 2017     #
 #-----------------------------------------------#
 
 #You can change these variables here, but I recommend you
