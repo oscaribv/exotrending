@@ -13,6 +13,7 @@
 
 * I have only tested it with Kepler light curves, but it should work for any file with a time and flux column.
 
+
 ## ** Dependencies **
 
 You need to have installed:
@@ -155,5 +156,11 @@ the pdf file of the light_curve.pdf and the warm_jupiter_detrended.dat file,
 which contains the detrendend light curve, where the first column is the time,
 the second the flux and the third one the error bars.
 
+## Documentation
+
+This last example is a simple case. There are more option in the code
+that can be modified in the input.py file. A manual is not
+available now, but a description of the parameters that you can
+change are inside the `src/default.py` file.
+
 ## ** Acknowledgements **
-* to Mabel Valerdi, to help me as a test user.
