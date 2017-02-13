@@ -3,7 +3,7 @@
 ##### email: oscaribv@gmail.com
 ##### Updated Feb 09, 2017
 
-## __Introduction__
+## Introduction
 
 * This software suite is a small compilation to detrended exoplanet transit light curves.
 
@@ -14,7 +14,7 @@
 * I have only tested it with Kepler light curves, but it should work for any file with a time and flux column.
 
 
-## ** Dependencies **
+## Dependencies
 
 You need to have installed:
 * gfortran
@@ -25,7 +25,7 @@ You need to have installed:
 
 ## Use it now!
 
-You do not need install anything, just clone or download pyaneti.
+You do not need install anything, just clone or download the repository.
 
 ```
 git clone https://github.com/oscaribv/exotrending
@@ -59,7 +59,7 @@ cd ..
 The test case comes from [Barragán et al. (2017)](https://arxiv.org/abs/1702.00691).
 A warm Jupiter with 3 transits. We downladed the light curve and we called it
 "warm_jupiter.dat". From a transit detection algorith me have the ephemeris
-P = 28.38229 and epoch of first transit T0 = 2492.81705. We estimated
+P = 28.38229 days and epoch of first transit T0 = 2492.81705 (BJD - 2454833.0) days. We estimated
 roughly that the transit duration is 5 hours and we want 10 hours of out-of-transit
 data to do the detrending.
 
@@ -72,6 +72,7 @@ We put this information in the input.py file (already in)
 lc_file='warm_jupiter.dat'
 
 #Flag to indicate if we want a plot with the seaborn library
+#Uncoment next line to have similar plots to the ones in this tutorial
 #is_seaborn = True
 
 #Ephemeris
