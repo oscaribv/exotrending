@@ -1,7 +1,7 @@
 #EXOTRENDRING
-#### Written by Oscar Barragán
-##### email: oscaribv@gmail.com
-##### Updated Feb 09, 2017
+#### Written by Barragán O. and Gandolfi D.
+##### email: oscar.barraganvil@edu.unito.it
+##### Updated Feb 14, 2017
 
 ## Introduction
 
@@ -65,7 +65,7 @@ data to do the detrending.
 
 We put this information in the input.py file (already in)
 
-```python2.7
+```Python
 #Input file
 
 #the name of the file with the light curve data
@@ -164,4 +164,13 @@ that can be modified in the input.py file. A manual is not
 available now, but a description of the parameters that you can
 change are inside the `src/default.py` file.
 
-## ** Acknowledgements **
+## Software in development
+
+This software is in contruction, it may contain bugs.
+
+** If you have doubts or suggestions do not hesitate to contact me.
+email: oscar.barraganvil@edu.unito.it **
+
+## Acknowledgements
+* I thank to Lauren Flor Torres, Sebastian Morales, Fernando Romero and Mabel Valerdi
+for help me as test users.
