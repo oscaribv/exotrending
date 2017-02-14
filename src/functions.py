@@ -140,7 +140,7 @@ def transito(t,a,u1,u2,k):
 
   pars = [T0,P,0.0,np.pi/2,0.0,a]
 
-  z = pti.find_z(t,pars)
-  flujo, dummy_var = pti.occultquad(z,u1,u2,k)
+  z = exo.find_z(t,pars)
+  flujo, dummy_var = exo.occultquad(z,u1,u2,k)
 
   return flujo

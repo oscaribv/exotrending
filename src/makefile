@@ -13,7 +13,7 @@ FLAGS= -c -m
 SOURCES= quad.f90 \
          findz.f90
 
-EXECUTABLE=orbits
+EXECUTABLE=exomodule
 
 all: $(EXECUTABLE) 
 $(EXECUTABLE):$(SOURCES)

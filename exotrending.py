@@ -6,7 +6,7 @@ sys.path.append('./src')
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-import orbits as pti
+import exomodule as exo
 from scipy.optimize import curve_fit
 
 #Read the input file
