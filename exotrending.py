@@ -20,7 +20,7 @@ if ( is_seaborn ):
   sns.set_color_codes()
   sns.set(style='ticks')
 
-#Total time to takek into account
+#Total time to take into account
 td = ttran + toutt
 
 time, flux = np.loadtxt(lc_file,delimiter=file_separator\
@@ -67,7 +67,7 @@ xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits,toler)
 #expected number of transits. The real number of transits is:
 total_n_transits = len(xt_ot)
 
-print 'Individual detected transits'
+print 'Individual transits'
 #Plot the individual transits
 plot_individual_tr1()
 
@@ -166,7 +166,7 @@ if ( is_fix_parameters ):
   fitted_flux = transito(mivec,a,u1,u2,k)
   zero_flux = transito(vec_phase,a,u1,u2,k)
 else:
-  print 'I AM FITTING THE PARAMETERS'
+  print 'I AM FITTING THE DATA'
   #Find the best fit values by fitting a Mandel & Agol (2010) model
   popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
   fitted_flux = transito(mivec, popt[0], popt[1], popt[2], popt[3])
@@ -187,8 +187,8 @@ zero_flux_ot = [1.0]*len(ot_fvector)
 zero_flux_ot = zero_flux_ot - ot_fvector
 
 print 'SIGMA-CLIPPING ENDED'
-print 'BLUE POINTS -> remaining data'
-print 'RED POINTS  -> removed data'
+print 'BLUE POINTS -> good data'
+print 'RED POINTS  -> rejected data'
 c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma,True)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma,False)
 
@@ -203,7 +203,6 @@ if ( fix_error ):
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
 print "CREATING OUTPUT FILE = ", out_f
 of = open(out_f,'w')
-#of.write('#This detrended light curve was created with pyaneti/lunas\n')
 for i in range(0,len(a)):
   of.write(' %8.8f   %8.8f  %8.8f \n'%(a[i],b[i],err_flux))
 
