@@ -1,22 +1,24 @@
 #EXOTRENDRING
-#### Written by Barragán O. and Gandolfi D.
+#### Written by Barragán O. & Gandolfi D.
 ##### email: oscar.barraganvil@edu.unito.it
 ##### Updated Feb 14, 2017
 
 ## Introduction
 
-* This software suite is a small compilation to detrended exoplanet transit light curves.
+* This software is a small code to detrend exoplanet transit light curves.
 
-* It is very simple and it can be used straightforward.
+* It is very simple and straightforward.
 
-* If you have a light curve (time and flux) and some good epeheris, this code can help you!
+* If you have a light curve (flux versus time) and some good ephemeris (epoch of first
+transit and orbital period), this code can help you!
 
-* I have only tested it with Kepler light curves, but it should work for any file with a time and flux column.
+* The code has been tested with Kepler and K2 light curves, but it should work
+ with any other light curve.
 
 
 ## Dependencies
 
-You need to have installed:
+You need to install:
 * gfortran
 * numpy
 * matplotlib
@@ -25,15 +27,16 @@ You need to have installed:
 
 ## Use it now!
 
-You do not need install anything, just clone or download the repository.
+You do not need to install anything, just clone or download the repository.
 
 ```
 git clone https://github.com/oscaribv/exotrending
 ```
 
-The advantage about cloning the repository is the possibility to follow the changes to this package easily with git pull (learn more about git
+The advantage about cloning the repository is the possibility to follow the changes of this package easily with git pull (learn more about git
 in [https://git-scm.com/](https://git-scm.com/)).
-Or if you want
+Alternatively, you can use
+
 
 ```
 wget https://github.com/oscaribv/exotrending/archive/master.zip
@@ -41,29 +44,29 @@ unzip master.zip
 mv exotrending_master exotrending
 ```
 
-if you choose this option, you should repeat it every time the code is updated.
+If you choose this option, you should repeat it every time the code is updated.
 
-Now we have to compile the file with the transit routines (we need to do this
+Next, you have to compile the file with the transit routines (it has to be done
  only one time!)
 
 ```
 cd exotrending/src
 make
 ```
-If there were no errors, then you are ready to run the test case!
+If no error occurs, then you are ready to run the test case!
 
-First return to the parent directory
+First, return to the parent directory
 ```
 cd ..
 ```
 The test case comes from [Barragán et al. (2017)](https://arxiv.org/abs/1702.00691).
-A warm Jupiter with 3 transits. We downladed the light curve and we called it
-"warm_jupiter.dat". From a transit detection algorith me have the ephemeris
-P = 28.38229 days and epoch of first transit T0 = 2492.81705 (BJD - 2454833.0) days. We estimated
-roughly that the transit duration is 5 hours and we want 10 hours of out-of-transit
-data to do the detrending.
+There are 3 transits of the planet visible in the K2 data. The file with the light curve is called
+"warm_jupiter.dat". The ephemeris are
+P = 28.38229 days and T0 = 2492.81705 (BJD - 2454833.0) days.
+The transit duration is about 5 hours. Ten hours of data centered around
+each transit are used to detrend the data.
 
-We put this information in the input.py file (already in)
+The informations are provided in the input.py file.
 
 ```Python
 #Input file
@@ -97,16 +100,16 @@ You will see
 
 ![Whole light curve](images/f1.png)
 
-which is the whole light-curve, where the transit positions
- are marked with vertical dashed lines. Then
+These are the whole time series data with the position of each
+ transit marked with a vertical dashed line.
 
-` Individual detected transits `
+` Individual transits `
 
 ![Detected transits](images/f2.png)
 
 `I found 3 transits`
 
-Which are the found transits (3 in this case). The next image is
+These are the transits found by the code (3 in this case). The next plot is
 
 ```
 Individual detected transits
@@ -117,29 +120,29 @@ detrended transits
 
 ![Detrended transits](images/f3.png)
 
-Which are all the DETRENDEND transits. The next image is the
-phase-folded data to the first transit.
+These are the DETRENDEND transits. The next plot shows the
+phase-folded data.
 
 ` folded transits `
 
 ![Folded transits](images/f4.png)
 
-The next step is to fit a Mandel & Agol (2002) light curve_fit
+The code will now fit a Mandel & Agol (2002) model to the transit light curve
 
 ```
 STARTING SIGMA-CLIPPING
 with =  3.0 -sigma
-I AM FITTING THE PARAMETERS
+I AM FITTING THE DATA
 ```
 
 ![Fit to data](images/f5.png)
 
-And perform the sigma clipping
+and then perform the sigma clipping
 
 ```
 SIGMA-CLIPPING ENDED
-BLUE POINTS -> remaining data
-RED POINTS  -> removed data
+BLUE POINTS -> good data
+RED POINTS  -> rejected data
 ```
 
 ![removed data points](images/f6.png)
@@ -148,29 +151,29 @@ RED POINTS  -> removed data
 CREATING OUTPUT FILE =  warm_jupiter_detrended.dat
 ```
 
-Where the red points are the removed ones (I know, this is not a good
-example to show that the sigma-clipping works, but I will
-put some good example soon).
+The red points are the rejected data.
 
- The output of the code are
-the pdf file of the light_curve.pdf and the warm_jupiter_detrended.dat file,
-which contains the detrendend light curve, where the first column is the time,
-the second the flux and the third one the error bars.
+ The output files of the code are
+* light_curve.pdf, light curve plot.
+* warm_jupiter_detrended.dat, detrended transit light curves. First column is time,
+second flux and third error bars.
 
 ## Documentation
 
-This last example is a simple case. There are more option in the code
-that can be modified in the input.py file. A manual is not
-available now, but a description of the parameters that you can
-change are inside the `src/default.py` file.
+The previous example is a simple case.
+You can detrend any other light curve by changing the parameters of the input.py
+file. There are more option in the code
+that can be modified in the input.py file. Although there is no manual yet,
+ a description of the variables is provided inside the `src/default.py` file.
+
 
 ## Software in development
 
-This software is in contruction, it may contain bugs.
+This software is under contruction and debugging.
 
-** If you have doubts or suggestions do not hesitate to contact me.
-email: oscar.barraganvil@edu.unito.it **
+**If you have any doubts or suggestions, please do not hesitate to contact me.
+email: oscar.barraganvil@edu.unito.it**
 
 ## Acknowledgements
-* I thank to Lauren Flor Torres, Sebastian Morales, Fernando Romero and Mabel Valerdi
-for help me as test users.
+* Many thanks go to Lauren Flor Torres, Sebastian Morales, Fernando Romero and Mabel Valerdi
+for their precious help.
