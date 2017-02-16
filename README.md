@@ -41,7 +41,7 @@ Alternatively, you can use
 ```
 wget https://github.com/oscaribv/exotrending/archive/master.zip
 unzip master.zip
-mv exotrending_master exotrending
+mv exotrending-master exotrending
 ```
 
 If you choose this option, you should repeat it every time the code is updated.
