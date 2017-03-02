@@ -23,7 +23,7 @@ ttout = 10./24.            #out of transit data duration (days)
 is_seaborn = False
 
 #Method for the detrending (substraction or division)
-method = 'substraction'
+method = 'division'
 
 #Number minimum of data to take into account a transit 
 #for the extract_transit function (integer)
