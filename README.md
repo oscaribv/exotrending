@@ -1,4 +1,6 @@
-##EXOTRENDRING
+
+
+# EXOTRENDRING
 #### Written by Barragán O. & Gandolfi D.
 ##### email: oscar.barraganvil@edu.unito.it
 ##### Updated Jun 05, 2017
