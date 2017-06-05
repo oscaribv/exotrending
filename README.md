@@ -1,7 +1,7 @@
-#EXOTRENDRING
+##EXOTRENDRING
 #### Written by Barragán O. & Gandolfi D.
 ##### email: oscar.barraganvil@edu.unito.it
-##### Updated Feb 14, 2017
+##### Updated Jun 05, 2017
 
 ## Introduction
 
