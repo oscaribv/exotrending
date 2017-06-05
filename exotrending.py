@@ -149,11 +149,11 @@ vec_phase = np.concatenate(phase_xt)
 vec_flux  = np.concatenate(new_ft)
 
 #Setting priors
-p0 = [a,u1,u2,k]
+p0 = [a,u1,u2,k,b]
 
 #params limits
-param_bounds=([min_a,min_u1,min_u1,min_k], \
-              [max_a,max_u1,max_u2,max_k])
+param_bounds=([min_a,min_u1,min_u1,min_k,min_b], \
+              [max_a,max_u1,max_u2,max_k,max_b])
 
 
 mixmin = min(new_xt[0])
@@ -163,15 +163,15 @@ mivec = np.arange(mixmin,mixmax,(mixmax-mixmin)/100.)
 #Let us create the data to plot the model
 if ( is_fix_parameters ):
   print 'I AM USSING THE INPUT PARAMETERS'
-  fitted_flux = transito(mivec,a,u1,u2,k)
-  zero_flux = transito(vec_phase,a,u1,u2,k)
+  fitted_flux = transito(mivec,a,u1,u2,k,b)
+  zero_flux = transito(vec_phase,a,u1,u2,k,b)
 else:
   print 'I AM FITTING THE DATA'
   #Find the best fit values by fitting a Mandel & Agol (2010) model
   popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
-  fitted_flux = transito(mivec, popt[0], popt[1], popt[2], popt[3])
+  fitted_flux = transito(mivec, popt[0], popt[1], popt[2], popt[3],popt[4])
   #Extract the best model from the data
-  zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3])
+  zero_flux = transito(vec_phase, popt[0], popt[1], popt[2], popt[3],popt[4])
 
 #print 'DOES THE CURVE LOOKS LIKE YOUR DATA?'
 #Plot fitted light curve

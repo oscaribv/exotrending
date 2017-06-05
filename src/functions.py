@@ -46,6 +46,62 @@ def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_l
   print 'I found', len(xt), 'transits'
 
   return xt, ft, xt_ot, ft_ot
+
+#-------------------------------------------------------
+#Now let us save only the data around the transit
+#xt, ft -> time and flux between the limits ltl and rtl
+#xt_ot, ft_ot -> time and flux between the limits ltl and rtl
+#                but outside the transit
+def extract_transits_multiplanets(T0,P,time_local,flux_local,ltl_local, \
+                                  rtl_local,n_transits_local,toler,npl):
+  xt = []    #vector with transit and out of the transit time data
+  ft = []    #vector with transit and out of the transit flux data
+  xt_ot = [] #out of transit time
+  ft_ot = [] #out of transit flux
+  xt_dummy = []
+  ft_dummy = []
+  xt_ot_dummy = []
+  ft_ot_dummy = []
+  j = [0]*npl # <- to control the number of transits of each planet
+  #if ( max(time_local) < rtl_local[n_transits_local-1] ):
+  #  rtl_local[n_transits_local-1] = time_local[len(time_local)-2]
+  #Let us sweep all the time vector
+  for i in range(0,len(time_local)):
+    for o in range(0,npl):
+      #Let us check if the current time stamp is close to a transit
+      if ( time_local[i] > ltl[o][j[o]] and time_local[i] < rtl[o][j[o]]):
+        #If yes, let us store it
+        xt_dummy.append(time_local[i])
+        ft_dummy.append(flux_local[i])
+        t0_dummy = T0[o] + P[o]*j[o]
+        #Now lets store the out of the transit data
+        if ( time_local[i] < ( t0_dummy - ttran[o]/2. ) or \
+             time_local[i] > ( t0_dummy + ttran[o]/2. ) ):
+          xt_ot_dummy.append(time_local[i])
+          ft_ot_dummy.append(flux_local[i])
+      elif(time_local[i] > rtl[o][j[o]] and len(xt_ot_dummy) > toler ): #to skip gaps in data
+        xt.append(list(xt_dummy))
+        ft.append(list(ft_dummy))
+        xt_dummy = []
+        ft_dummy = []
+        xt_ot.append(list(xt_ot_dummy))
+        ft_ot.append(list(ft_ot_dummy))
+        xt_ot_dummy = []
+        ft_ot_dummy = []
+        j = j + 1
+        if ( j  == n_transits ):
+         break
+      elif(time_local[i] > rtl[j] and len(xt_ot_dummy) <= toler ): #to skip gaps in data
+        j = j + 1
+        xt_dummy = []
+        ft_dummy = []
+        xt_ot_dummy = []
+        ft_ot_dummy = []
+
+  print 'I found', len(xt), 'transits'
+
+  return xt, ft, xt_ot, ft_ot
+
 #-------------------------------------------------------
 #Plot light curve
 #-------------------------------------------------------
@@ -135,10 +191,11 @@ def sigma_clip(x,y,z,limit_sigma=3,is_plot=False):
   return new_x, new_y
 
 #z has to be calculated from the t
-def transito(t,a,u1,u2,k):
+#By now the code only assumes a circular orbit
+def transito(t,a,u1,u2,k,b):
   global T0, P
 
-  pars = [T0,P,0.0,np.pi/2,0.0,a]
+  pars = [T0,P,0.0,np.pi/2,b,a]
 
   z = exo.find_z(t,pars)
   flujo, dummy_var = exo.occultquad(z,u1,u2,k)

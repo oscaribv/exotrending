@@ -51,6 +51,7 @@ a  =  4.56    #scaled semi-major axis
 u1 = 0.5      #u1 limb darkening coefficient, Mandel & Agol, 2002
 u2 = 0.41     #u2 limb darkening coefficient, Mandel & Agol, 2002
 k  = 0.0172   #Scaled planet radius Rp/R*
+b  = 0.0      #Impact parameter
 
 #if is_fix_parameters = False, these are the ranges for the parameters for curve_fit
 min_a = 2.0
@@ -61,3 +62,5 @@ min_u2 = -1.0
 max_u2 = 1.0
 min_k = 0.0
 max_k = 1.0
+min_b = 0.0
+max_b = 1.0
