@@ -5,6 +5,8 @@
 ##### email: oscar.barraganvil@edu.unito.it
 ##### Updated Jun 05, 2017
 
+<a href="http://ascl.net/1706.001"><img src="https://img.shields.io/badge/ascl-1706.001-blue.svg?colorB=262255" alt="ascl:1706.001" /></a>
+
 ## Introduction
 
 * This software is a small code to detrend exoplanet transit light curves.
