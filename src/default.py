@@ -11,7 +11,7 @@
 lc_file='warm_jupiter.dat'
 
 #File separator, default is ' ', it could be ',', '.', etc.
-file_separator = ' '
+file_separator = None
 
 #Default ephemeris
 P = 28.38229               #Period (days)
@@ -30,7 +30,7 @@ method = 'division'
 toler = 2
 
 #How many sigma do we want for the sigma-clipping?
-lsigma = 3.0
+lsigma = 10.0
 
 #Order of polinomial to fit
 porder = 2

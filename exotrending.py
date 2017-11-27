@@ -23,8 +23,13 @@ if ( is_seaborn ):
 #Total time to take into account
 td = ttran + toutt
 
-time, flux = np.loadtxt(lc_file,delimiter=file_separator\
+if ( file_separator == None ):
+  time, flux = np.loadtxt(lc_file\
              ,comments='#',unpack=True, usecols=[0,1])
+else:
+  time, flux = np.loadtxt(lc_file,delimiter=file_separator,\
+             comments='#',unpack=True, usecols=[0,1])
+
 
 mean_flux = np.mean(flux)
 
