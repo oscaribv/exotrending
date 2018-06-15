@@ -42,6 +42,8 @@ def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_l
       ft_dummy = []
       xt_ot_dummy = []
       ft_ot_dummy = []
+      if ( j  == n_transits ):
+       break
 
   print 'I found', len(xt), 'transits'
 
