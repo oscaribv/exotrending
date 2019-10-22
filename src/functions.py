@@ -45,7 +45,7 @@ def extract_transits(T0,P,time_local,flux_local,ltl_local,rtl_local,n_transits_l
       if ( j  == n_transits ):
        break
 
-  print 'I found', len(xt), 'transits'
+  print('I found', len(xt), 'transits')
 
   return xt, ft, xt_ot, ft_ot
 
@@ -100,7 +100,7 @@ def extract_transits_multiplanets(T0,P,time_local,flux_local,ltl_local, \
         xt_ot_dummy = []
         ft_ot_dummy = []
 
-  print 'I found', len(xt), 'transits'
+  print('I found', len(xt), 'transits')
 
   return xt, ft, xt_ot, ft_ot
 
@@ -133,7 +133,7 @@ def plot_light_curve():
 
 def plot_individual_tr1():
   plt.figure(1,figsize=(7,1.708*total_n_transits/2))
-  gs = gridspec.GridSpec(nrows=(total_n_transits+1)/2,ncols=2)
+  gs = gridspec.GridSpec(nrows=int((total_n_transits+1)/2),ncols=2)
   for i in range(0,total_n_transits):
     plt.subplot(gs[i])
     plt.xlabel('time (days)')
@@ -147,7 +147,7 @@ def plot_individual_tr1():
 
 def plot_individual_tr2():
   plt.figure(1,figsize=(12,3.708*total_n_transits/2))
-  gs = gridspec.GridSpec(nrows=(total_n_transits+1)/2,ncols=2)
+  gs = gridspec.GridSpec(nrows=int((total_n_transits+1)/2),ncols=2)
   for i in range(0,total_n_transits):
     plt.subplot(gs[i])
     plt.xlabel('time (days)')

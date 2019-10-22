@@ -1,11 +1,15 @@
 #-------------------------------------------------------------------------#
 #                                    Makefile                             #
 #                       Oscar Barragán, Jan. 2017                         #
+#                       Updated, Oct. 2019                                #
 #-------------------------------------------------------------------------#
 #    make       -> compiles the code                                      #
 #-------------------------------------------------------------------------#
 
-FP=f2py
+#Check that you are compiling with the python version that you plan to use
+FP=f2py2.7
+#FP=F2py3.6
+
 fc=gnu95 
 cc=unix 
 

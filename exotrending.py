@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 #Load libraries
+from __future__ import print_function, division, absolute_import
 import sys
 sys.path.append('./src')
 import numpy as np
@@ -10,10 +11,10 @@ import exomodule as exo
 from scipy.optimize import curve_fit
 
 #Read the input file
-execfile("src/default.py")
-execfile("input.py")
+exec(open('src/default.py').read())
+exec(open('input.py').read())
 #Load the functions file
-execfile("src/functions.py")
+exec(open('src/functions.py').read())
 
 if ( is_seaborn ):
   import seaborn as sns
@@ -40,7 +41,7 @@ flux = flux / mean_flux
 ftl = T0 - td / 2.0
 ftr = T0 + td / 2.0
 
-print 'This is the whole light curve'
+print('This is the whole light curve')
 #Plot a nice light curve, to change plot options in functions.py
 plot_light_curve()
 
@@ -72,7 +73,7 @@ xt, ft, xt_ot, ft_ot = extract_transits(T0,P,time,flux,ltl,rtl,n_transits,toler)
 #expected number of transits. The real number of transits is:
 total_n_transits = len(xt_ot)
 
-print 'Individual transits'
+print('Individual transits')
 #Plot the individual transits
 plot_individual_tr1()
 
@@ -86,11 +87,11 @@ coefs = [None]*total_n_transits
 #this will save the polinomio funcions
 polin = [None]*total_n_transits
 
-print 'FITTING POLINOMIAL ORDER = ', porder
+print('FITTING POLINOMIAL ORDER = ', porder)
 if ( method[0] == 's' ):
-  print 'METHOD = SUBSTRACTION '
+  print ('METHOD = SUBSTRACTION ')
 if ( method[0] == 'd' ):
-  print 'METHOD = DIVISION '
+  print ('METHOD = DIVISION ')
 
 #Find the best fit for each out-of-transit points
 for i in range(0,total_n_transits):
@@ -121,13 +122,13 @@ for i in range(0,len(ft_ot)):
 #---------------   Data corrected   -----------------------
 
 #Plot the corrected transits
-print 'detrended transits'
+print('detrended transits')
 plot_individual_tr2()
 
 #phase_xt vector would have the folded-time data
 phase_xt = list(new_xt)
 
-print 'Folded transits'
+print('Folded transits')
 #Let us fold all the transits and plot the final result
 plt.figure(1,figsize=(10,10/1.618))
 for i in range(0,total_n_transits):
@@ -142,8 +143,8 @@ plt.show()
 #Make the sigma clipping here
 #--------------------------------------------
 
-print 'STARTING SIGMA-CLIPPING'
-print 'with = ',lsigma,'-sigma'
+print('STARTING SIGMA-CLIPPING')
+print('with = ',lsigma,'-sigma')
 
 #Create the vectos which will be used during the fit
 #The vector with the time stamps
@@ -167,11 +168,11 @@ mivec = np.arange(mixmin,mixmax,(mixmax-mixmin)/100.)
 
 #Let us create the data to plot the model
 if ( is_fix_parameters ):
-  print 'I AM USSING THE INPUT PARAMETERS'
+  print('I AM USSING THE INPUT PARAMETERS')
   fitted_flux = transito(mivec,a,u1,u2,k,b)
   zero_flux = transito(vec_phase,a,u1,u2,k,b)
 else:
-  print 'I AM FITTING THE DATA'
+  print('I AM FITTING THE DATA')
   #Find the best fit values by fitting a Mandel & Agol (2010) model
   popt, psigma = curve_fit(transito,vec_phase,vec_flux,p0=p0,bounds=param_bounds)
   fitted_flux = transito(mivec, popt[0], popt[1], popt[2], popt[3],popt[4])
@@ -191,9 +192,9 @@ ot_xvector = np.concatenate(new_xt_ot)
 zero_flux_ot = [1.0]*len(ot_fvector)
 zero_flux_ot = zero_flux_ot - ot_fvector
 
-print 'SIGMA-CLIPPING ENDED'
-print 'BLUE POINTS -> good data'
-print 'RED POINTS  -> rejected data'
+print('SIGMA-CLIPPING ENDED')
+print('BLUE POINTS -> good data')
+print('RED POINTS  -> rejected data')
 c,d = sigma_clip(vec_phase,vec_flux,zero_flux,lsigma,True)
 a,b = sigma_clip(vec_xt,vec_flux,zero_flux,lsigma,False)
 
@@ -206,7 +207,7 @@ if ( fix_error ):
 
 #Let us create the detrended file
 out_f = lc_file[:-4] + '_detrended' + lc_file[-4:]
-print "CREATING OUTPUT FILE = ", out_f
+print("CREATING OUTPUT FILE = ", out_f)
 of = open(out_f,'w')
 for i in range(0,len(a)):
   of.write(' %8.8f   %8.8f  %8.8f \n'%(a[i],b[i],err_flux))
