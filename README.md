@@ -2,7 +2,7 @@
 
 # EXOTRENDING
 #### Written by Barragán O. & Gandolfi D.
-##### email: oscar.barraganvil@edu.unito.it
+##### email: oscaribv@gmail.com
 ##### Updated Jun 05, 2017
 
 <a href="http://ascl.net/1706.001"><img src="https://img.shields.io/badge/ascl-1706.001-blue.svg?colorB=262255" alt="ascl:1706.001" /></a>
@@ -176,7 +176,7 @@ that can be modified in the input.py file. Although there is no manual yet,
 This software is under contruction and debugging.
 
 **If you have any doubts or suggestions, please do not hesitate to contact me.
-email: oscar.barraganvil@edu.unito.it**
+email: oscaribv@gmail.com**
 
 ## Acknowledgements
 * Many thanks go to Lauren Flor Torres, Sebastian Morales, Fernando Romero and Mabel Valerdi
