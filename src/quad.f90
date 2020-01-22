@@ -1,4 +1,3 @@
-
 !------------------------------------------------------------
 !                         quad_agol.f90
 ! This file contains a modification of the original occultquad.f 
@@ -13,12 +12,13 @@ subroutine occultquad(z0,u1,u2,k,muo1,mu0,nz)
 !  of a quadratically limb-darkened source without microlensing.
 !  Please cite Mandel & Agol (2002) if you make use of this routine
 !  in your research.  Please report errors or bugs to agol@tapir.caltech.edu
+use constants
 implicit none
 integer, intent(in) :: nz
-double precision, intent(in) :: z0(nz),u1,u2,k
-double precision, intent(out) :: muo1(nz),mu0(nz)
-double precision :: lambdad(nz),etad(nz),lambdae(nz),lam
-double precision :: p,pi,x1,x2,x3,z,omega,kap0,kap1,q,Kk,Ek,Pk,n,ellec,ellk,rj
+real(kind=mireal), intent(in) :: z0(nz),u1,u2,k
+real(kind=mireal), intent(out) :: muo1(nz),mu0(nz)
+real(kind=mireal) :: lambdad(nz),etad(nz),lambdae(nz),lam
+real(kind=mireal) :: p,x1,x2,x3,z,omega,kap0,kap1,q,Kk,Ek,Pk,n,ellec,ellk,rj
 integer :: i
   p = k
   if(abs(p-0.5d0).lt.1.d-3) p=0.5d0
@@ -43,7 +43,6 @@ integer :: i
 !
 ! Now, compute pure occultation curve:
       omega=1.d0-u1/3.d0-u2/6.d0
-      pi=acos(-1.d0)
 ! Loop over each impact parameter:
       do i=1,nz
 ! substitute z=z0(i) to shorten expressions
@@ -69,6 +68,7 @@ integer :: i
         endif
 ! the source is partly occulted and the occulting object crosses the limb:
 ! Equation (26):
+        kap1 = 0. !dummy value
         if(z.ge.abs(1.d0-p).and.z.le.1.d0+p) then
           kap1=acos(min((1.d0-p*p+z*z)/2.d0/z,1.d0))
           kap0=acos(min((p*p+z*z-1.d0)/2.d0/p/z,1.d0))
@@ -88,12 +88,12 @@ integer :: i
             Kk=ellk(q)
             Ek=ellec(q)
 ! Equation 34: lambda_3
-            lambdad(i)=1.d0/3.d0+16.d0*p/9.d0/pi*(2.d0*p*p-1.d0)*Ek-(32.d0*p**4-20.d0*p*p+3.d0)/9.d0/pi/p*Kk
+            lambdad(i)=1./3.+16.d0*p/9.d0/pi*(2.d0*p*p-1.d0)*Ek-(32.d0*p**4-20.d0*p*p+3.d0)/9.d0/pi/p*Kk
 ! Equation 34: eta_1
             etad(i)=1.d0/2.d0/pi*(kap1+p*p*(p*p+2.d0*z*z)*kap0-(1.d0+5.d0*p*p+z*z)/4.d0*sqrt((1.d0-x1)*(x2-1.d0)))
             if(p.eq.0.5d0) then
 ! Case VIII: p=1/2, z=1/2
-              lambdad(i)=1.d0/3.d0-4.d0/pi/9.d0
+              lambdad(i)=1./3.-4.d0/pi/9.d0
               etad(i)=3.d0/32.d0
             endif
             goto 10
@@ -104,7 +104,7 @@ integer :: i
             Kk=ellk(q)
             Ek=ellec(q)
 ! Equation 34: lambda_4
-            lambdad(i)=1.d0/3.d0+2.d0/9.d0/pi*(4.d0*(2.d0*p*p-1.d0)*Ek+ (1.d0-4.d0*p*p)*Kk)
+            lambdad(i)=1./3.+2.d0/9.d0/pi*(4.d0*(2.d0*p*p-1.d0)*Ek+ (1.d0-4.d0*p*p)*Kk)
 ! Equation 34: eta_2
             etad(i)=p*p/2.d0*(p*p+2.d0*z*z)
             goto 10
@@ -155,11 +155,12 @@ integer :: i
       end
 
       FUNCTION rc(x,y)
-      REAL*8 rc,x,y,ERRTOL,TINY,SQRTNY,BIG,TNBG,COMP1,COMP2,THIRD,C1,C2,C3,C4
+      use constants
+      real(kind=mireal) rc,x,y,ERRTOL,TINY,SQRTNY,BIG,TNBG,COMP1,COMP2,THIRD,C1,C2,C3,C4
       PARAMETER (ERRTOL=.04d0,TINY=1.69d-38,SQRTNY=1.3d-19,BIG=3.d37, &
       TNBG=TINY*BIG,COMP1=2.236d0/SQRTNY,COMP2=TNBG*TNBG/25.d0, &
-      THIRD=1.d0/3.d0,C1=.3d0,C2=1.d0/7.d0,C3=.375d0,C4=9.d0/22.d0)
-      REAL*8 alamb,ave,s,w,xt,yt
+      THIRD=1./3.,C1=.3d0,C2=1./7.,C3=.375d0,C4=9./22.)
+      real(kind=mireal) alamb,ave,s,w,xt,yt
       if(x.lt.0..or.y.eq.0..or.(x+abs(y)).lt.TINY.or.(x+ &
       abs(y)).gt.BIG.or.(y.lt.-COMP1.and.x.gt.0..and.x.lt.COMP2)) then
         print *, 'quad.f90: invalid argumets in rc'
@@ -187,13 +188,14 @@ integer :: i
 !  (C) Copr. 1986-92 Numerical Recipes Software
 
       FUNCTION rj(x,y,z,p)
-      REAL*8 rj,p,x,y,z,ERRTOL,TINY,BIG,C1,C2,C3,C4,C5,C6,C7,C8
-      PARAMETER (ERRTOL=.05d0,TINY=2.5d-13,BIG=9.d11,C1=3.d0/14.d0, &
-      C2=1.d0/3.d0,C3=3.d0/22.d0,C4=3.d0/26.d0,C5=.75d0*C3, &
-      C6=1.5d0*C4,C7=.5d0*C2,C8=C3+C3)
+      use constants
+      real(kind=mireal) rj,p,x,y,z,ERRTOL,TINY,BIG,C1,C2,C3,C4,C5,C6,C7,C8
+      PARAMETER (ERRTOL=.05d0,TINY=2.5d-13,BIG=9.d11,C1=3./14., &
+      C2=1./3.,C3=3./22.,C4=3./26.,C5=.75*C3, &
+      C6=1.5*C4,C7=0.5*C2,C8=C3+C3)
 !CU    USES rc,rf
-      REAL*8 rc, rf
-      REAL*8 a,alamb,alpha,ave,b,beta,delp,delx,dely,delz,ea,eb,ec,ed,ee, &
+      real(kind=mireal) rc, rf
+      real(kind=mireal) a,alamb,alpha,ave,b,beta,delp,delx,dely,delz,ea,eb,ec,ed,ee, &
       fac,pt,rcx,rho,sqrtx,sqrty,sqrtz,sum,tau,xt,yt,zt
       if(min(x,y,z).lt.0..or.min(x+y,x+z,y+z,abs(p)).lt.TINY.or.max(x,y, &
       z,abs(p)).gt.BIG) then
@@ -208,6 +210,7 @@ integer :: i
         yt=y
         zt=z
         pt=p
+        rcx = 0.
       else
         xt=min(x,y,z)
         zt=max(x,y,z)
@@ -251,8 +254,9 @@ integer :: i
 !  (C) Copr. 1986-92 Numerical Recipes Software
 
       function ellec(k)
+      use constants
       implicit none
-      double precision k,m1,a1,a2,a3,a4,b1,b2,b3,b4,ee1,ee2,ellec
+      real(kind=mireal) k,m1,a1,a2,a3,a4,b1,b2,b3,b4,ee1,ee2,ellec
 ! Computes polynomial approximation for the complete elliptic
 ! integral of the second kind (Hasting's approximation):
       m1=1.d0-k*k
@@ -271,8 +275,9 @@ integer :: i
       end
 
       function ellk(k)
+      use constants
       implicit none
-      double precision a0,a1,a2,a3,a4,b0,b1,b2,b3,b4,ellk,ek1,ek2,k,m1
+      real(kind=mireal) a0,a1,a2,a3,a4,b0,b1,b2,b3,b4,ellk,ek1,ek2,k,m1
 ! Computes polynomial approximation for the complete elliptic
 ! integral of the first kind (Hasting's approximation):
       m1=1.d0-k*k
@@ -293,10 +298,11 @@ integer :: i
       end
 
       FUNCTION rf(x,y,z)
-      REAL*8 rf,x,y,z,ERRTOL,TINY,BIG,THIRD,C1,C2,C3,C4
-      PARAMETER (ERRTOL=.08d0,TINY=1.5d-38,BIG=3.d37,THIRD=1.d0/3.d0, &
-      C1=1.d0/24.d0,C2=.1d0,C3=3.d0/44.d0,C4=1.d0/14.d0)
-      REAL*8 alamb,ave,delx,dely,delz,e2,e3,sqrtx,sqrty,sqrtz,xt,yt,zt
+      use constants
+      real(kind=mireal) rf,x,y,z,ERRTOL,TINY,BIG,THIRD,C1,C2,C3,C4
+      PARAMETER (ERRTOL=.08d0,TINY=1.5d-38,BIG=3.d37,THIRD=1./3., &
+      C1=1./24.,C2=.1d0,C3=3./44.,C4=1./14.)
+      real(kind=mireal) alamb,ave,delx,dely,delz,e2,e3,sqrtx,sqrty,sqrtz,xt,yt,zt
       if(min(x,y,z).lt.0.d0.or.min(x+y,x+z,y+z).lt.TINY.or.max(x,y, &
       z).gt.BIG) then
             print *, 'invalid arguments in rf'

@@ -8,13 +8,14 @@
 
 #Check that you are compiling with the python version that you plan to use
 FP=f2py2.7
-#FP=F2py3.6
+#FP=f2py3.6
 
 fc=gnu95 
 cc=unix 
 
 FLAGS= -c -m 
-SOURCES= quad.f90 \
+SOURCES= constants.f90 \
+	 quad.f90 \
          findz.f90
 
 EXECUTABLE=exomodule
